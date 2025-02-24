@@ -18,8 +18,8 @@ currentLogLevel = LOG_LEVEL_DEBUG;
 ```
 or any of the following `LOG_LEVEL_INFO`, `LOG_LEVEL_WARN`, `LOG_LEVEL_ERROR`, `LOG_LEVEL_NONE`
 
-and then you can log with the `LOG` functions.` If currentLogLevel is INFO, WARNING and ERROR will be printed also. If its is level NONE, no logging will occur.
-LOG and LOGln work similar to simply printing but you can use the format string like `LOGln("Data: %ld", data);` Output will occur regradless of currentLogLevel for `LOG` and `LOGln`.
+and then you can log with the `LOG` functions. If currentLogLevel is `INFO`, `WARNING` and `ERROR` messages will be printed also. If its is level `NONE`, no logging will occur.
+`LOG` and `LOGln` work similar to simply printing but you can use the format string like `LOGln("Data: %ld", data);` Output will occur regradless of currentLogLevel for `LOG` and `LOGln`.
 
 In your program if you set
 ```
