@@ -1,0 +1,33 @@
+#######################################
+# Syntax Coloring Map
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+currentLogLevel KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+LOGE   KEYWORD2
+LOGW  KEYWORD2
+LOGI  KEYWORD2
+LOGD  KEYWORD2
+LOGIC KEYWORD2
+LOGIE KEYWORD2
+LOG   KEYWORD2
+LOGln KEYWORD2
+
+#######################################
+# Instances (KEYWORD2)
+#######################################
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+LOG_LEVEL_NONE  LITERAL1
+LOG_LEVEL_ERROR LITERAL1
+LOG_LEVEL_WARN  LITERAL1
+LOG_LEVEL_INFO  LITERAL1
+LOG_LEVEL_DEBUG LITERAL1
