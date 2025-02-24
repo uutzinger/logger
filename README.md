@@ -1,6 +1,6 @@
 # Logger Library for Embedded Systems such as Arduino
 
-Logger provides simple logging with:
+Logger provides simple logging (Serial.print MACROS) with:
 
 - `LOG`
 - `LOGln` 
@@ -18,13 +18,14 @@ currentLogLevel = LOG_LEVEL_DEBUG;
 ```
 or any of the following `LOG_LEVEL_INFO`, `LOG_LEVEL_WARN`, `LOG_LEVEL_ERROR`, `LOG_LEVEL_NONE`
 
-and in then you can log with the `LOG` functions that act similar to `Serial.print();`
+and then you can log with the `LOG` functions.` If currentLogLevel is INFO, WARNING and ERROR will be printed also. If its is level NONE, no logging will occur.
+LOG and LOGln work similar to simply print data but you can use the formate string `LOGln("Data: %ld\n\r", data);`
 
 In your program if you set
 ```
 #def DEBUG
 ```
-LOGD will be compiled into the program and if its not set it will be omitted.
+LOGD will be compiled into the program and if its not set it will be omitted. This will reduce the overhead once only INFO, WARNING or ERROR level is wanted.
 
 # Installation
 url=https://github.com/uutzinger/logger
