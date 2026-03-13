@@ -1,9 +1,9 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-#ifndef USE_AUDIO_LOGGING
-
 #include <Arduino.h>
+
+#ifndef USE_AUDIO_LOGGING
 
 // Current log level
 extern int currentLogLevel;
@@ -23,7 +23,7 @@ extern int currentLogLevel;
 #ifdef DEBUG
     #define LOGD(...) do { if (currentLogLevel >= LOG_LEVEL_DEBUG) logPrintLevelln("DEBUG", __VA_ARGS__); } while (0)
 #else
-    #define LOGD(...)  
+    #define LOGD(...) do { } while (0)
 #endif
 
 // Continuous info logging on the same line with multiple calls

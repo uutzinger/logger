@@ -10,14 +10,20 @@ currentLogLevel KEYWORD1
 #######################################
 # Methods and Functions (KEYWORD2)
 #######################################
-LOGE   KEYWORD2
+LOGE  KEYWORD2
 LOGW  KEYWORD2
 LOGI  KEYWORD2
 LOGD  KEYWORD2
+LOGIS KEYWORD2
 LOGIC KEYWORD2
 LOGIE KEYWORD2
 LOG   KEYWORD2
 LOGln KEYWORD2
+logPrintLevel   KEYWORD2
+logPrintLevelln KEYWORD2
+logPrint        KEYWORD2
+logPrintln      KEYWORD2
+uint8ToBinaryString KEYWORD2
 
 #######################################
 # Instances (KEYWORD2)
