@@ -37,6 +37,10 @@ extern int currentLogLevel;
 #define LOG(...) logPrint(__VA_ARGS__)
 #define LOGln(...) logPrintln(__VA_ARGS__)
 
+// Output stream configuration. Defaults to Serial.
+void logSetOutput(Print& output);
+Print& logGetOutput();
+
 // Functions to print log messages
 void logPrintLevel(const char* level, const char* format, ...);
 void logPrintLevelln(const char* level, const char* format, ...);

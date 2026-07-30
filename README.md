@@ -1,6 +1,6 @@
 # Logger Library for Embedded Systems such as Arduino
 
-Logger provides simple logging (Serial.print MACROS) with:
+Logger provides simple logging (`Print` output macros, defaulting to `Serial`) with:
 
 - `LOG`
 - `LOGln` 
@@ -23,6 +23,12 @@ or any of the following `LOG_LEVEL_INFO`, `LOG_LEVEL_WARN`, `LOG_LEVEL_ERROR`, `
 
 and then you can log with the `LOG` functions. If currentLogLevel is `INFO`, `WARNING` and `ERROR` messages will also be printed. If it is level `NONE`, no logging will occur.
 `LOG` and `LOGln` work similarly to simple printing, but you can use format strings like `LOGln("Data: %ld", data);`. Output will occur regardless of `currentLogLevel` for `LOG` and `LOGln`.
+
+By default logs are written to `Serial`. To write to another Arduino `Print` implementation, such as BLESerial, set the output once:
+```
+logSetOutput(bleSerial);
+LOGI("Logging over BLE");
+```
 
 In your program if you set
 ```
@@ -67,6 +73,9 @@ void setup()
 
   Serial.begin(BAUDRATE);
   while ( !Serial ){ delay(100); }
+
+  // Optional: route logs to any Print target instead of Serial.
+  // logSetOutput(bleSerial);
 
   LOGI("mySensor");
   ...

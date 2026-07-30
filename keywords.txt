@@ -19,6 +19,8 @@ LOGIC KEYWORD2
 LOGIE KEYWORD2
 LOG   KEYWORD2
 LOGln KEYWORD2
+logSetOutput    KEYWORD2
+logGetOutput    KEYWORD2
 logPrintLevel   KEYWORD2
 logPrintLevelln KEYWORD2
 logPrint        KEYWORD2

@@ -380,20 +380,31 @@ static void formatLogMessage(char* buffer, size_t bufferSize, const char* format
     }
 }
 
+static Print* logOutput = NULL;
+
+static Print& activeLogOutput() {
+    if (logOutput != NULL) {
+        return *logOutput;
+    }
+    return Serial;
+}
+
 static void writeLogMessage(const char* level, const char* format, va_list& args, bool appendNewline) {
+    Print& output = activeLogOutput();
+
     if (level != NULL) {
-        Serial.print("[");
-        Serial.print(level);
-        Serial.print("] ");
+        output.print("[");
+        output.print(level);
+        output.print("] ");
     }
 
     char buffer[LOGGER_BUFFER_SIZE];
     formatLogMessage(buffer, sizeof(buffer), format, args);
 
     if (appendNewline) {
-        Serial.println(buffer);
+        output.println(buffer);
     } else {
-        Serial.print(buffer);
+        output.print(buffer);
     }
 }
 
@@ -402,6 +413,14 @@ static void writeLogMessage(const char* level, const char* format, va_list& args
 #ifndef USE_AUDIO_LOGGING
 int currentLogLevel = LOG_LEVEL_DEBUG; // Default log level
 #endif
+
+void logSetOutput(Print& output) {
+    logOutput = &output;
+}
+
+Print& logGetOutput() {
+    return activeLogOutput();
+}
 
 void uint8ToBinaryString(char *buffer, uint8_t value) {
     for (int i = 7; i >= 0; i--) {
