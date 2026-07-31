@@ -15,14 +15,18 @@ functions.
 The formatter supports standard `printf` specifiers such as `%d`, `%ld`, `%u`, `%x`, `%f`, `%c`, `%s`, and `%p`.
 The custom `%b` specifier prints the low 8 bits of the supplied value as a binary string.
 
-In your main program you set: 
+In your main program you set the level with: 
 ```
-currentLogLevel = LOG_LEVEL_DEBUG;
+logSetLevel(LOG_LEVEL_DEBUG);
 ```
 or any of the following `LOG_LEVEL_INFO`, `LOG_LEVEL_WARN`, `LOG_LEVEL_ERROR`, `LOG_LEVEL_NONE`
+and then you can log with the `LOG` functions. 
 
-and then you can log with the `LOG` functions. If currentLogLevel is `INFO`, `WARNING` and `ERROR` messages will also be printed. If it is level `NONE`, no logging will occur.
-`LOG` and `LOGln` work similarly to simple printing, but you can use format strings like `LOGln("Data: %ld", data);`. Output will occur regardless of `currentLogLevel` for `LOG` and `LOGln`.
+If the current level is `INFO`, `WARNING` and `ERROR` messages will also be printed. If it is level `NONE`, no logging will occur.
+
+`LOG` and `LOGln` omit `[LOG LEVEL]` in the output, and it will occur regardless of the current log level.
+
+Existing sketches that assign `currentLogLevel` directly continue to work, but `logSetLevel()` is the preferred API for new code.
 
 By default logs are written to `Serial`. To write to another Arduino `Print` implementation, such as BLESerial, set the output once:
 ```
@@ -34,16 +38,26 @@ In your program if you set
 ```
 #define DEBUG
 ```
-LOGD will be compiled into the program and if its not set it will be omitted. This will reduce the overhead once only INFO, WARNING or ERROR level is wanted.
+LOGD will be compiled into the program and if its not set it will be omitted. This will reduce the overhead once only INFO, WARNING or ERROR logging is wanted.
 
-If you use the Arduino Audio library and want to avoid conflicts with its `LOGE`, `LOGI`, `LOGW`, and related macros, define
+If you use the `Arduino Audio library` and want to avoid conflicts with its `LOGE`, `LOGI`, `LOGW`, and related macros, define
 ```
 #define USE_AUDIO_LOGGING
 ```
-before including `logger.h`. In that mode `LOG`, `LOGln`, `logPrint`, and `logPrintln` remain available, but the level macros and `currentLogLevel` are not declared by this library.
+before including `logger.h`. In that mode `LOG`, `LOGln`, `logPrint`, and `logPrintln` remain available, but the level macros, level constants, `currentLogLevel`, `logSetLevel()`, and `logGetLevel()` are not declared by this library.
+
+# Implementation
+The library uses compact macros as log-level gates. This avoids formatting the log text when the log level is not met.
+
+For portability, it implements its own `printf`-style formatting and includes a `%b` formatter. If code size is more important than `%b` support, define
+```
+#define LOGGER_USE_SIMPLE_VSNPRINTF
+```
+before including `logger.h` to use the platform `vsnprintf()` formatter directly.
 
 # Installation
 url=https://github.com/uutzinger/logger
+or use the Arduino library manager.
 
 # Example Use
 ```
@@ -69,7 +83,7 @@ url=https://github.com/uutzinger/logger
 
 void setup()
 {
-  currentLogLevel = LOG_LEVEL;
+  logSetLevel(LOG_LEVEL);
 
   Serial.begin(BAUDRATE);
   while ( !Serial ){ delay(100); }
@@ -100,7 +114,7 @@ void loop() {
 None
 
 # Contributing
-Gpt-5.4
+OpenAI Codex
 
 # License
 

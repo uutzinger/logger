@@ -19,12 +19,18 @@ LOGIC KEYWORD2
 LOGIE KEYWORD2
 LOG   KEYWORD2
 LOGln KEYWORD2
+logSetLevel     KEYWORD2
+logGetLevel     KEYWORD2
 logSetOutput    KEYWORD2
 logGetOutput    KEYWORD2
 logPrintLevel   KEYWORD2
 logPrintLevelln KEYWORD2
 logPrint        KEYWORD2
 logPrintln      KEYWORD2
+logVPrintLevel   KEYWORD2
+logVPrintLevelln KEYWORD2
+logVPrint        KEYWORD2
+logVPrintln      KEYWORD2
 uint8ToBinaryString KEYWORD2
 
 #######################################

@@ -48,7 +48,7 @@ static bool isDigitChar(char value) {
     return (value >= '0') && (value <= '9');
 }
 
-static void appendData(char* buffer, size_t bufferSize, size_t& index, const char* data, size_t length) {
+static void appendToBuffer(char* buffer, size_t bufferSize, size_t& index, const char* data, size_t length) {
     if ((bufferSize == 0) || (length == 0)) {
         return;
     }
@@ -71,8 +71,8 @@ static void appendData(char* buffer, size_t bufferSize, size_t& index, const cha
     buffer[index] = '\0';
 }
 
-static void appendChar(char* buffer, size_t bufferSize, size_t& index, char value) {
-    appendData(buffer, bufferSize, index, &value, 1);
+static void appendCharToBuffer(char* buffer, size_t bufferSize, size_t& index, char value) {
+    appendToBuffer(buffer, bufferSize, index, &value, 1);
 }
 
 static bool parseFormatSpecifier(const char* format, FormatSpecifier& spec) {
@@ -148,7 +148,7 @@ static bool parseFormatSpecifier(const char* format, FormatSpecifier& spec) {
     return true;
 }
 
-static bool copySpecifierFormat(char* destination, size_t destinationSize, const FormatSpecifier& spec, char replacementSpecifier) {
+static bool copySpecifierWithReplacement(char* destination, size_t destinationSize, const FormatSpecifier& spec, char replacementSpecifier) {
     if (destinationSize == 0) {
         return false;
     }
@@ -210,7 +210,17 @@ static void storeCountArgument(va_list& args, const FormatSpecifier& spec, size_
     }
 }
 
-static int formatSpecifierValue(char* chunk, size_t chunkSize, const FormatSpecifier& spec, va_list& args, size_t currentCount) {
+static int formatBinarySpecifier(char* chunk, size_t chunkSize, const FormatSpecifier& spec, int width, int precision, va_list& args) {
+    char binary[9];
+    char binaryFormat[LOGGER_FORMAT_SIZE];
+    if (!copySpecifierWithReplacement(binaryFormat, sizeof(binaryFormat), spec, 's')) {
+        return -1;
+    }
+    uint8ToBinaryString(binary, static_cast<uint8_t>(va_arg(args, int)));
+    return formatValue(chunk, chunkSize, binaryFormat, spec.widthFromArg, spec.precisionFromArg, width, precision, binary);
+}
+
+static int formatOneSpecifier(char* chunk, size_t chunkSize, const FormatSpecifier& spec, va_list& args, size_t currentCount) {
     int width = 0;
     int precision = 0;
 
@@ -230,7 +240,7 @@ static int formatSpecifierValue(char* chunk, size_t chunkSize, const FormatSpeci
     }
 
     char formatBuffer[LOGGER_FORMAT_SIZE];
-    if (!copySpecifierFormat(formatBuffer, sizeof(formatBuffer), spec, spec.specifier)) {
+    if (!copySpecifierWithReplacement(formatBuffer, sizeof(formatBuffer), spec, spec.specifier)) {
         return -1;
     }
 
@@ -316,22 +326,15 @@ static int formatSpecifierValue(char* chunk, size_t chunkSize, const FormatSpeci
         case 'p':
             return formatValue(chunk, chunkSize, formatBuffer, spec.widthFromArg, spec.precisionFromArg, width, precision, va_arg(args, void*));
 
-        case 'b': {
-            char binary[9];
-            char binaryFormat[LOGGER_FORMAT_SIZE];
-            if (!copySpecifierFormat(binaryFormat, sizeof(binaryFormat), spec, 's')) {
-                return -1;
-            }
-            uint8ToBinaryString(binary, static_cast<uint8_t>(va_arg(args, int)));
-            return formatValue(chunk, chunkSize, binaryFormat, spec.widthFromArg, spec.precisionFromArg, width, precision, binary);
-        }
+        case 'b':
+            return formatBinarySpecifier(chunk, chunkSize, spec, width, precision, args);
 
         default:
             return -1;
     }
 }
 
-static void formatLogMessage(char* buffer, size_t bufferSize, const char* format, va_list& args) {
+static void formatMessage(char* buffer, size_t bufferSize, const char* format, va_list& args) {
     if (bufferSize == 0) {
         return;
     }
@@ -341,43 +344,48 @@ static void formatLogMessage(char* buffer, size_t bufferSize, const char* format
         return;
     }
 
+#ifdef LOGGER_USE_SIMPLE_VSNPRINTF
+    vsnprintf(buffer, bufferSize, format, args);
+    buffer[bufferSize - 1] = '\0';
+#else
     size_t index = 0;
     const char* cursor = format;
 
     while ((*cursor != '\0') && (index < (bufferSize - 1))) {
         if (*cursor != '%') {
-            appendChar(buffer, bufferSize, index, *cursor);
+            appendCharToBuffer(buffer, bufferSize, index, *cursor);
             ++cursor;
             continue;
         }
 
         if (*(cursor + 1) == '%') {
-            appendChar(buffer, bufferSize, index, '%');
+            appendCharToBuffer(buffer, bufferSize, index, '%');
             cursor += 2;
             continue;
         }
 
         FormatSpecifier spec;
         if (!parseFormatSpecifier(cursor, spec)) {
-            appendChar(buffer, bufferSize, index, *cursor);
+            appendCharToBuffer(buffer, bufferSize, index, *cursor);
             ++cursor;
             continue;
         }
 
         char chunk[LOGGER_CHUNK_SIZE];
-        int written = formatSpecifierValue(chunk, sizeof(chunk), spec, args, index);
+        int written = formatOneSpecifier(chunk, sizeof(chunk), spec, args, index);
         if (written < 0) {
-            appendData(buffer, bufferSize, index, spec.begin, static_cast<size_t>(spec.end - spec.begin));
+            appendToBuffer(buffer, bufferSize, index, spec.begin, static_cast<size_t>(spec.end - spec.begin));
         } else if (written > 0) {
             size_t chunkLength = static_cast<size_t>(written);
             if (chunkLength >= sizeof(chunk)) {
                 chunkLength = sizeof(chunk) - 1;
             }
-            appendData(buffer, bufferSize, index, chunk, chunkLength);
+            appendToBuffer(buffer, bufferSize, index, chunk, chunkLength);
         }
 
         cursor = spec.end;
     }
+#endif
 }
 
 static Print* logOutput = NULL;
@@ -389,17 +397,19 @@ static Print& activeLogOutput() {
     return Serial;
 }
 
-static void writeLogMessage(const char* level, const char* format, va_list& args, bool appendNewline) {
-    Print& output = activeLogOutput();
-
+static void writePrefix(Print& output, const char* level) {
     if (level != NULL) {
         output.print("[");
         output.print(level);
         output.print("] ");
     }
+}
+
+static void writeFormatted(Print& output, const char* level, const char* format, va_list& args, bool appendNewline) {
+    writePrefix(output, level);
 
     char buffer[LOGGER_BUFFER_SIZE];
-    formatLogMessage(buffer, sizeof(buffer), format, args);
+    formatMessage(buffer, sizeof(buffer), format, args);
 
     if (appendNewline) {
         output.println(buffer);
@@ -412,6 +422,14 @@ static void writeLogMessage(const char* level, const char* format, va_list& args
 
 #ifndef USE_AUDIO_LOGGING
 int currentLogLevel = LOG_LEVEL_DEBUG; // Default log level
+
+void logSetLevel(int level) {
+    currentLogLevel = level;
+}
+
+int logGetLevel() {
+    return currentLogLevel;
+}
 #endif
 
 void logSetOutput(Print& output) {
@@ -432,27 +450,43 @@ void uint8ToBinaryString(char *buffer, uint8_t value) {
 void logPrintLevelln(const char* level, const char* format, ...) {
     va_list args;
     va_start(args, format);
-    writeLogMessage(level, format, args, true);
+    logVPrintLevelln(level, format, args);
     va_end(args);
 }
 
 void logPrintLevel(const char* level, const char* format, ...) {
     va_list args;
     va_start(args, format);
-    writeLogMessage(level, format, args, false);
+    logVPrintLevel(level, format, args);
     va_end(args);
 }
 
 void logPrint(const char* format, ...) {
     va_list args;
     va_start(args, format);
-    writeLogMessage(NULL, format, args, false);
+    logVPrint(format, args);
     va_end(args);
 }
 
 void logPrintln(const char* format, ...) {
     va_list args;
     va_start(args, format);
-    writeLogMessage(NULL, format, args, true);
+    logVPrintln(format, args);
     va_end(args);
+}
+
+void logVPrintLevel(const char* level, const char* format, va_list args) {
+    writeFormatted(activeLogOutput(), level, format, args, false);
+}
+
+void logVPrintLevelln(const char* level, const char* format, va_list args) {
+    writeFormatted(activeLogOutput(), level, format, args, true);
+}
+
+void logVPrint(const char* format, va_list args) {
+    writeFormatted(activeLogOutput(), NULL, format, args, false);
+}
+
+void logVPrintln(const char* format, va_list args) {
+    writeFormatted(activeLogOutput(), NULL, format, args, true);
 }

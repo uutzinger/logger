@@ -2,10 +2,11 @@
 #define LOGGER_H
 
 #include <Arduino.h>
+#include <stdarg.h>
 
 #ifndef USE_AUDIO_LOGGING
 
-// Current log level
+// Current log level. Prefer logSetLevel() in new sketches.
 extern int currentLogLevel;
 
 // Log levels
@@ -14,6 +15,10 @@ extern int currentLogLevel;
 #define LOG_LEVEL_WARN  2
 #define LOG_LEVEL_INFO  3
 #define LOG_LEVEL_DEBUG 4
+
+// Log level configuration. Defaults to DEBUG.
+void logSetLevel(int level);
+int logGetLevel();
 
 // Macros for logging
 #define LOGE(...) do { if (currentLogLevel >= LOG_LEVEL_ERROR) logPrintLevelln("ERROR", __VA_ARGS__); } while (0)
@@ -46,6 +51,10 @@ void logPrintLevel(const char* level, const char* format, ...);
 void logPrintLevelln(const char* level, const char* format, ...);
 void logPrint(const char* format, ...);
 void logPrintln(const char* format, ...);
+void logVPrintLevel(const char* level, const char* format, va_list args);
+void logVPrintLevelln(const char* level, const char* format, va_list args);
+void logVPrint(const char* format, va_list args);
+void logVPrintln(const char* format, va_list args);
 
 // Binary conversion function
 void uint8ToBinaryString(char *buffer, uint8_t value);
