@@ -23,6 +23,7 @@ or any of the following `LOG_LEVEL_INFO`, `LOG_LEVEL_WARN`, `LOG_LEVEL_ERROR`, `
 and then you can log with the `LOG` functions. 
 
 If the current level is `INFO`, `WARNING` and `ERROR` messages will also be printed. If it is level `NONE`, no logging will occur.
+The `LOG_LEVEL_*` macro values match NimBLE/Mynewt (`DEBUG` is `0`, `NONE` is `5`) to avoid redefinition warnings when both libraries are used. Use the named constants rather than raw numbers.
 
 `LOG` and `LOGln` omit `[LOG LEVEL]` in the output, and it will occur regardless of the current log level.
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.2.0 - 2026-08-01
+- Changed `LOG_LEVEL_*` macro values to match NimBLE/Mynewt (`DEBUG` = 0 through `NONE` = 5) to avoid macro redefinition warnings when both libraries are included.
+- Inverted logger threshold comparisons so named log levels keep the same runtime behavior: `DEBUG` prints all enabled levels, `INFO` prints info/warn/error, `WARN` prints warn/error, `ERROR` prints error only, and `NONE` prints nothing.
+- Added `LOG_LEVEL_CRITICAL` for compatibility with NimBLE/Mynewt level names.
+- Migration note: code using raw numeric log levels or direct numeric comparisons should switch to the named `LOG_LEVEL_*` constants.
+
 ## v2.1.1 - 2026-07-31
 - Added configurable `Print` output with `logSetOutput()` and `logGetOutput()`, while keeping `Serial` as the default.
 - Added `logSetLevel()` and `logGetLevel()` as the preferred log-level API while preserving direct `currentLogLevel` compatibility.

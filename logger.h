@@ -9,32 +9,33 @@
 // Current log level. Prefer logSetLevel() in new sketches.
 extern int currentLogLevel;
 
-// Log levels
-#define LOG_LEVEL_NONE  0
-#define LOG_LEVEL_ERROR 1
-#define LOG_LEVEL_WARN  2
-#define LOG_LEVEL_INFO  3
-#define LOG_LEVEL_DEBUG 4
+// Log levels. Values match NimBLE/Mynewt to avoid macro redefinition warnings.
+#define LOG_LEVEL_DEBUG    (0)
+#define LOG_LEVEL_INFO     (1)
+#define LOG_LEVEL_WARN     (2)
+#define LOG_LEVEL_ERROR    (3)
+#define LOG_LEVEL_CRITICAL (4)
+#define LOG_LEVEL_NONE     (5)
 
 // Log level configuration. Defaults to DEBUG.
 void logSetLevel(int level);
 int logGetLevel();
 
 // Macros for logging
-#define LOGE(...) do { if (currentLogLevel >= LOG_LEVEL_ERROR) logPrintLevelln("ERROR", __VA_ARGS__); } while (0)
-#define LOGW(...) do { if (currentLogLevel >= LOG_LEVEL_WARN)  logPrintLevelln("WARN",  __VA_ARGS__); } while (0)
-#define LOGI(...) do { if (currentLogLevel >= LOG_LEVEL_INFO)  logPrintLevelln("INFO",  __VA_ARGS__); } while (0)
+#define LOGE(...) do { if (currentLogLevel <= LOG_LEVEL_ERROR) logPrintLevelln("ERROR", __VA_ARGS__); } while (0)
+#define LOGW(...) do { if (currentLogLevel <= LOG_LEVEL_WARN)  logPrintLevelln("WARN",  __VA_ARGS__); } while (0)
+#define LOGI(...) do { if (currentLogLevel <= LOG_LEVEL_INFO)  logPrintLevelln("INFO",  __VA_ARGS__); } while (0)
 
 #ifdef DEBUG
-    #define LOGD(...) do { if (currentLogLevel >= LOG_LEVEL_DEBUG) logPrintLevelln("DEBUG", __VA_ARGS__); } while (0)
+    #define LOGD(...) do { if (currentLogLevel <= LOG_LEVEL_DEBUG) logPrintLevelln("DEBUG", __VA_ARGS__); } while (0)
 #else
     #define LOGD(...) do { } while (0)
 #endif
 
 // Continuous info logging on the same line with multiple calls
-#define LOGIS(...) do { if (currentLogLevel >= LOG_LEVEL_INFO) logPrintLevel("INFO",  __VA_ARGS__); } while (0)
-#define LOGIC(...) do { if (currentLogLevel >= LOG_LEVEL_INFO) logPrint(__VA_ARGS__); } while (0)
-#define LOGIE(...) do { if (currentLogLevel >= LOG_LEVEL_INFO) logPrintln(__VA_ARGS__); } while (0)
+#define LOGIS(...) do { if (currentLogLevel <= LOG_LEVEL_INFO) logPrintLevel("INFO",  __VA_ARGS__); } while (0)
+#define LOGIC(...) do { if (currentLogLevel <= LOG_LEVEL_INFO) logPrint(__VA_ARGS__); } while (0)
+#define LOGIE(...) do { if (currentLogLevel <= LOG_LEVEL_INFO) logPrintln(__VA_ARGS__); } while (0)
 
 #endif // USE_AUDIO_LOGGING
 
