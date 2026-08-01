@@ -54,6 +54,7 @@ void logPrint(const char* format, ...);
 void logPrintln(const char* format, ...);
 void logVPrintLevel(const char* level, const char* format, va_list args);
 void logVPrintLevelln(const char* level, const char* format, va_list args);
+void logVPrintLevellnTo(Print& output, const char* level, const char* format, va_list args);
 void logVPrint(const char* format, va_list args);
 void logVPrintln(const char* format, va_list args);
 

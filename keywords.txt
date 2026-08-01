@@ -29,6 +29,7 @@ logPrint        KEYWORD2
 logPrintln      KEYWORD2
 logVPrintLevel   KEYWORD2
 logVPrintLevelln KEYWORD2
+logVPrintLevellnTo KEYWORD2
 logVPrint        KEYWORD2
 logVPrintln      KEYWORD2
 uint8ToBinaryString KEYWORD2

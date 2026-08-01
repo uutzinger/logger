@@ -483,6 +483,10 @@ void logVPrintLevelln(const char* level, const char* format, va_list args) {
     writeFormatted(activeLogOutput(), level, format, args, true);
 }
 
+void logVPrintLevellnTo(Print& output, const char* level, const char* format, va_list args) {
+    writeFormatted(output, level, format, args, true);
+}
+
 void logVPrint(const char* format, va_list args) {
     writeFormatted(activeLogOutput(), NULL, format, args, false);
 }

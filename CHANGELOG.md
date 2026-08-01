@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.2.1 - 2026-08-01
+- Added destination-explicit `logVPrintLevellnTo()` so a library can format to a supplied `Print` without reading or changing the global logger output.
+
 ## v2.2.0 - 2026-08-01
 - Changed `LOG_LEVEL_*` macro values to match NimBLE/Mynewt (`DEBUG` = 0 through `NONE` = 5) to avoid macro redefinition warnings when both libraries are included.
 - Inverted logger threshold comparisons so named log levels keep the same runtime behavior: `DEBUG` prints all enabled levels, `INFO` prints info/warn/error, `WARN` prints warn/error, `ERROR` prints error only, and `NONE` prints nothing.

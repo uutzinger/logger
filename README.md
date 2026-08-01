@@ -35,6 +35,10 @@ logSetOutput(bleSerial);
 LOGI("Logging over BLE");
 ```
 
+Libraries that already manage a `va_list` can format a leveled line directly to
+any `Print`, without reading or changing the global output, using
+`logVPrintLevellnTo()`.
+
 In your program if you set
 ```
 #define DEBUG
